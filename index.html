@@ -1,44 +1,128 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Quidich Innovation Labs</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Quidich Innovations Labs</title>
+    <link rel="stylesheet" href="style.css">
+    
 </head>
 <body>
-    <video id="myVideo">
-        <source src="assets/Quidich_Final_pre_render.mp4" type="video/mp4">
-        Your browser does not support the video tag.
+
+      <div id="preloader">
+        <div class="blob left"></div>
+        <div class="blob right"></div>
+        <div id="shimmerWave" class="split-character">Ready to Elevate your Broadcast?</div>
+    <video id="preloaderVideo" class="hidden" autoplay muted playsinline>
+      <source src="assets/Preloader_Main.webm" type="video/webm">
     </video>
-    <div class="scroll-arrow">
-        <div class="arrow"></div>
-        <div class="arrow"></div>
-        <!-- <div class="arrow"></div> -->
+    <div id="progressBar"></div> 
+    
+      </div>
+    <header>
+        <div class="header-row">
+            <div class="brand-logo">
+                <a href="#">
+                    <img src="assets/logo.png" alt="Logo" style="height: 53px;">
+                    <img src="assets/quidichlogo.png" alt="Logo">
+                </a>
+            </div>
+            <button class="menu-toggle" id="menuToggle" data-hover>
+                <div class="hamburger"></div>
+                <div data-hover-bounds></div>
+            </button>
+        </div>
+    </header>
+    <section class="fullpage-menu">
+        <div class="fullpage-menu-inner">
+            <nav>
+                <ul class="main-menu">
+                    <li><a href="" class="effect-shine">Home</a></li>
+                    <li><a href="" class="effect-shine">About</a></li>
+                    <li><a href="" class="effect-shine">Work</a></li>
+                    <li><a href="" class="effect-shine">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="small-menu">
+                <a href="">Life at Quidich</a>
+                <a href="">In the Spotlight</a>
+            </div>
+            <div class="header-nav-footer">
+                <ul class="social-links">
+                    <li><a href="#"><i class="fab fa-facebook"></i></a></li>
+                    <li><a href="#"><i><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width: 19px;margin-top: -2px;"><path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"></path></svg></i></a></li>  
+                    <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                    <li><a href="#"><i class="fab fa-linkedin-in"></i></a></li>
+                    <li><a href="#"><i class="fab fa-youtube"></i></a></li>
+                    <li style="color: #fff;">&copy;2024</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <div class="video-container" id="firstVideoContainer">
+        <video id="scrollVideo1" muted>
+            <source src="assets/orange-first-fold.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
     </div>
-    <div id="pause-text-1" class="pause-text text-right">
-        <h2>Special Cameras</h2>
-        <p>Craft compelling stories with wide-angle drone shots along with stunning AR graphics. Give your fans a front-row experience with our high speed camera on wheels.
-        </p>
+    <div class="video-container" id="secondVideoContainer" style="display: none;">
+        <video id="scrollVideo2" muted>
+            <source src="assets/quidich-prerender.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+
+        <div class="overlay-content">
+            <div id="text-1" class="text">
+                <div class="progress-bar" id="timeline-1"></div>
+                <h1>Special Cameras</h1>
+                <p>Craft compelling stories with wide-angle drone shots along with stunning AR graphics. Give your fans a front-row experience with our high speed camera on wheels.</p>
+                <div style="display: flex;width: 100%; gap: 10px;">
+                <p class="scroll-prompt"><button>CopterQam</button></p>
+                <p class="scroll-prompt"><button>BuggyQam</button></p>
+                </div>
+            </div>
+
+            <div id="text-2" class="text">
+                <div class="progress-bar" id="timeline-2"></div>
+                <h1>StiQy</h1>
+                <p>Seamlessly stick any graphic onto any player or object, on any camera and in any sport, using AI to deliver insights without interrupting the action.</p>
+                <p class="scroll-prompt"><button>Know More</button></p>
+            </div>
+
+            <div id="text-3" class="text">
+                <div class="progress-bar" id="timeline-3"></div>
+                <h1>QuickFlip </h1>
+                <p>Seamlessly transform your 16:9 broadcast into a 9:16 vertical feed using AI, built for the next gen mobile first audience. </p>
+                <p class="scroll-prompt"><button>Know More</button></p>
+            </div>
+
+            <div id="text-4" class="text">
+                <div class="progress-bar" id="timeline-4"></div>
+                <h1>Quidich Tracker</h1>
+                <p>Track player positions in real time to uncover live movements, distances and strategies with at-a-glance visualisations on air. </p>
+                <p class="scroll-prompt"><button>Know More</button></p>
+            </div>
+
+            <div id="text-5" class="text">
+                <div class="progress-bar" id="timeline-5"></div>
+                <h1>HyperView</h1>
+                <p>Relive crucial moments in real-time through unseen angles and data within a 3D digital twin of the stadium.</p>
+                <p class="scroll-prompt"><button>Know More</button></p>
+            </div>
+
+            <div id="text-6" class="text">
+                <div class="progress-bar" id="timeline-6"></div>
+                <h1>HypeReality</h1>
+                <p>Enter the immersive world to watch key match highlights in Virtual Reality.</p>
+                <p class="scroll-prompt"><button>Know More</button></p>
+            </div>
+
+        </div>
     </div>
-    <div id="pause-text-2" class="pause-text text-left">
-        <h2>StiQy</h2>
-        <p>Seamlessly stick any graphic onto any player or object, on any camera and in any sport, using AI to deliver insights without interrupting the action.</p>
-    </div>
-    <div id="pause-text-3" class="pause-text text-left">
-        <h2>QuickFlip</h2>
-        <p>Seamlessly transform your 16:9 broadcast into a 9:16 vertical feed using AI, built for the next gen mobile first audience.</p>
-    </div>
-    <div id="pause-text-4" class="pause-text text-left">
-        <h2>Quidich Tracker</h2>
-        <p>Track player positions in real time to uncover live movements, distances and strategies with at-a-glance visualisations on air. </p>
-    </div>
-    <div id="pause-text-5" class="pause-text text-right">
-        <h2>HyperView</h2>
-        <p>Relive crucial moments in real-time through unseen angles and data within a 3D digital twin of the stadium.</p>
-    </div>
-    <div id="pause-text-6" class="pause-text text-left">
-        <h2>HypeReality</h2>
-        <p>Enter the immersive world to watch key match highlights in Virtual Reality. </p>
-    </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js"></script>
     <script src="main.js"></script>
 </body>
 </html>
