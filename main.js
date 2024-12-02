@@ -1,59 +1,161 @@
-const video = document.getElementById('myVideo');
-const scrollArrow = document.querySelector('.scroll-arrow');
-const pausePoints = [18, 27, 34, 43, 53, 62];
-let currentPausePointIndex = 0;
-let initialStart = true;
-let wheelTimeout = null;
-function hideAllPauseTexts() {
-    document.querySelectorAll('.pause-text').forEach(text => {
-        text.style.display = 'none';
-    });
-    scrollArrow.style.display = 'none';
-}
-function showPauseText(index) {
-    hideAllPauseTexts();
-    const textElement = document.getElementById(`pause-text-${index + 1}`);
-    if (textElement) {
-        textElement.style.display = 'block';
-        scrollArrow.style.display = 'block';
+document.addEventListener("DOMContentLoaded", () => {
+    const shimmerWave = document.getElementById("shimmerWave");
+    const video = document.getElementById("preloaderVideo");
+    const preloader = document.getElementById("preloader");
+    const progressBar = document.getElementById("progressBar");
+    const leftBlob = document.querySelector(".blob.left");
+    const rightBlob = document.querySelector(".blob.right");
+    const firstVideoContainer = document.getElementById("firstVideoContainer");
+    const secondVideoContainer = document.getElementById("secondVideoContainer");
+    const scrollVideo1 = document.getElementById("scrollVideo1");
+    const scrollVideo2 = document.getElementById("scrollVideo2");
+    let firstVideoEnded = false;
+    let isPaused = false;
+    let currentPauseIndex = 0;
+    const pausePoints = [
+        { time: 19, textId: "text-1" },
+        { time: 28, textId: "text-2" },
+        { time: 39, textId: "text-3" },
+        { time: 43, textId: "text-4" },
+        { time: 59, textId: "text-5" },
+        { time: 66, textId: "text-6" },
+    ];
+    function disableScroll() {
+        document.body.style.overflow = "hidden";
     }
-}
-window.addEventListener('load', () => {
-    video.pause();
-    scrollArrow.style.display = 'block';
-});
-window.addEventListener('wheel', (event) => {
-    if (event.deltaY > 0) {
-        if (wheelTimeout) {
-            clearTimeout(wheelTimeout);
-        } 
-        wheelTimeout = setTimeout(() => {
-            if (video.paused) {
-                hideAllPauseTexts();
-                video.play();
-                if (initialStart) {
-                    initialStart = false;
-                }
+    function enableScroll() {
+        document.body.style.overflow = "";
+    }
+    function splitTextToSpans(element) {
+        const text = element.textContent.trim();
+        element.innerHTML = "";
+        const spans = text.split("").map((char) => {
+            const span = document.createElement("span");
+            span.textContent = char === " " ? "\u00A0" : char;
+            return span;
+        });
+        spans.forEach((span) => element.appendChild(span));
+    }
+    function animateBlobs() {
+        gsap.timeline({ repeat: -1, yoyo: true })
+            .to(leftBlob, { y: "-50vh", duration: 6, ease: "power1.inOut" })
+            .to(leftBlob, { y: "50vh", duration: 6, ease: "power1.inOut" });
+
+        gsap.timeline({ repeat: -1, yoyo: true })
+            .to(rightBlob, { y: "50vh", duration: 6, ease: "power1.inOut" })
+            .to(rightBlob, { y: "-50vh", duration: 6, ease: "power1.inOut" });
+    }
+    function animateText() {
+        splitTextToSpans(shimmerWave);
+        const timeline = gsap.timeline();
+        timeline
+            .to("#shimmerWave span", {
+                opacity: 1,
+                y: 0,
+                duration: 0.5,
+                stagger: 0.05,
+            })
+            .to("#shimmerWave", {
+                scale: 0.5,
+                y: -window.innerHeight,
+                duration: 1,
+                ease: "power3.in",
+                onComplete: () => {
+                    gsap.to(video, {
+                        top: "50%",
+                        transform: "translate(-50%, -50%)",
+                        opacity: 1,
+                        duration: 1,
+                        ease: "power3.out",
+                        onStart: () => {
+                            video.classList.remove("hidden");
+                            video.play();
+                        },
+                        onComplete: () => startProgressBar(),
+                    });
+                },
+            });
+    }
+    function startProgressBar() {
+        video.addEventListener("timeupdate", () => {
+            const progress = (video.currentTime / video.duration) * 100;
+            progressBar.style.width = `${progress}%`;
+        });
+        video.addEventListener("ended", () => {
+            gsap.to(preloader, {
+                opacity: 0,
+                duration: 1,
+                onComplete: () => {
+                    preloader.style.display = "none";
+                    enableScroll();
+                },
+            });
+        });
+    }
+    function handleFirstVideoScroll() {
+        const scrollTop = window.pageYOffset;
+        const scrollHeight = document.body.scrollHeight - window.innerHeight;
+        const scrollPercentage = scrollTop / scrollHeight;
+
+        if (!firstVideoEnded) {
+            scrollVideo1.currentTime = scrollVideo1.duration * scrollPercentage;
+
+            if (scrollPercentage >= 1) {
+                firstVideoEnded = true;
+                scrollVideo1.pause();
+                firstVideoContainer.style.display = "none";
+                secondVideoContainer.style.display = "block";
+                scrollVideo2.play();
+                manageSecondVideoWithPauses();
             }
-        }, 50);
-    }
-});
-video.addEventListener('timeupdate', () => {
-    const currentTime = video.currentTime;
-    
-    if (!initialStart && currentPausePointIndex < pausePoints.length) {
-        if (Math.floor(currentTime) === pausePoints[currentPausePointIndex]) {
-            video.pause();
-            showPauseText(currentPausePointIndex);
-            currentPausePointIndex++;
         }
     }
-});
-video.addEventListener('ended', () => {
-    video.currentTime = 0;
-    video.pause();
-    currentPausePointIndex = 0;
-    initialStart = true;
-    hideAllPauseTexts();
-    scrollArrow.style.display = 'block';
+    function manageSecondVideoWithPauses() {
+        scrollVideo2.addEventListener("timeupdate", () => {
+            if (
+                currentPauseIndex < pausePoints.length &&
+                scrollVideo2.currentTime >= pausePoints[currentPauseIndex].time &&
+                !isPaused
+            ) {
+                scrollVideo2.pause();
+                isPaused = true;
+
+                const { textId } = pausePoints[currentPauseIndex];
+                const textElement = document.getElementById(textId);
+                const progressBar = document.getElementById(`timeline-${textId.split("-")[1]}`);
+
+                if (textElement) {
+                    textElement.style.display = "block";
+                    textElement.style.opacity = 1;
+                    if (progressBar) progressBar.style.width = "100%";
+                }
+            }
+        });
+        window.addEventListener("scroll", () => {
+            if (isPaused && currentPauseIndex < pausePoints.length) {
+                const { textId } = pausePoints[currentPauseIndex];
+                const textElement = document.getElementById(textId);
+
+                if (textElement) {
+                    textElement.style.opacity = 0;
+                    if (progressBar) progressBar.style.width = "0%";
+
+                    setTimeout(() => {
+                        textElement.style.display = "none";
+                    }, 500);
+                }
+
+                isPaused = false;
+                scrollVideo2.play();
+                currentPauseIndex++;
+            }
+        });
+    }
+    function initializePreloader() {
+        disableScroll();
+        animateBlobs();
+        animateText();
+    }
+    window.addEventListener("scroll", handleFirstVideoScroll);
+    initializePreloader();
 });
