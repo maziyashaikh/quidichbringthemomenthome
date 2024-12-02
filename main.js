@@ -92,24 +92,41 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
     }
-    function handleFirstVideoScroll() {
-        const scrollTop = window.pageYOffset;
-        const scrollHeight = document.body.scrollHeight - window.innerHeight;
-        const scrollPercentage = scrollTop / scrollHeight;
+  function handleFirstVideoScroll() {
+    const scrollHeight = document.body.scrollHeight - window.innerHeight;
 
-        if (!firstVideoEnded) {
-            scrollVideo1.currentTime = scrollVideo1.duration * scrollPercentage;
+    // Use requestAnimationFrame for smoother updates
+    let ticking = false;
+    function updateVideoPlayback() {
+        if (ticking) return;
 
-            if (scrollPercentage >= 1) {
-                firstVideoEnded = true;
-                scrollVideo1.pause();
-                firstVideoContainer.style.display = "none";
-                secondVideoContainer.style.display = "block";
-                scrollVideo2.play();
-                manageSecondVideoWithPauses();
+        ticking = true;
+        requestAnimationFrame(() => {
+            const scrollTop = window.pageYOffset;
+            const scrollPercentage = scrollTop / scrollHeight;
+
+            if (!firstVideoEnded) {
+                // Clamp the scroll percentage between 0 and 1 for consistency
+                const clampedScrollPercentage = Math.min(Math.max(scrollPercentage, 0), 1);
+                scrollVideo1.currentTime = scrollVideo1.duration * clampedScrollPercentage;
+
+                // Check if the video has reached the end
+                if (clampedScrollPercentage >= 1) {
+                    firstVideoEnded = true;
+                    scrollVideo1.pause();
+                    firstVideoContainer.style.display = "none";
+                    secondVideoContainer.style.display = "block";
+                    scrollVideo2.play();
+                    manageSecondVideoWithPauses();
+                }
             }
-        }
+
+            ticking = false;
+        });
     }
+
+    window.addEventListener("scroll", updateVideoPlayback);
+}
     function manageSecondVideoWithPauses() {
         scrollVideo2.addEventListener("timeupdate", () => {
             if (
