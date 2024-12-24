@@ -9,9 +9,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const secondVideoContainer = document.getElementById("secondVideoContainer");
     const scrollVideo1 = document.getElementById("scrollVideo1");
     const scrollVideo2 = document.getElementById("scrollVideo2");
+
     let firstVideoEnded = false;
     let isPaused = false;
     let currentPauseIndex = 0;
+    let lastKnownScrollPosition = 0;
+    let ticking = false;
+
     const pausePoints = [
         { time: 19, textId: "text-1" },
         { time: 28, textId: "text-2" },
@@ -92,41 +96,31 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
     }
-  function handleFirstVideoScroll() {
-    const scrollHeight = document.body.scrollHeight - window.innerHeight;
-
-    // Use requestAnimationFrame for smoother updates
-    let ticking = false;
-    function updateVideoPlayback() {
-        if (ticking) return;
-
-        ticking = true;
-        requestAnimationFrame(() => {
-            const scrollTop = window.pageYOffset;
-            const scrollPercentage = scrollTop / scrollHeight;
-
-            if (!firstVideoEnded) {
-                // Clamp the scroll percentage between 0 and 1 for consistency
-                const clampedScrollPercentage = Math.min(Math.max(scrollPercentage, 0), 1);
-                scrollVideo1.currentTime = scrollVideo1.duration * clampedScrollPercentage;
-
-                // Check if the video has reached the end
-                if (clampedScrollPercentage >= 1) {
-                    firstVideoEnded = true;
-                    scrollVideo1.pause();
-                    firstVideoContainer.style.display = "none";
-                    secondVideoContainer.style.display = "block";
-                    scrollVideo2.play();
-                    manageSecondVideoWithPauses();
-                }
+    function handleFirstVideoScroll() {
+        const scrollHeight = document.body.scrollHeight - window.innerHeight;
+        window.addEventListener("scroll", () => {
+            lastKnownScrollPosition = window.scrollY;
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const scrollPercentage = lastKnownScrollPosition / scrollHeight;
+                    if (!firstVideoEnded) {
+                        const clampedScrollPercentage = Math.min(Math.max(scrollPercentage, 0), 1);
+                        scrollVideo1.currentTime = scrollVideo1.duration * clampedScrollPercentage;
+                        if (clampedScrollPercentage >= 1) {
+                            firstVideoEnded = true;
+                            scrollVideo1.pause();
+                            firstVideoContainer.style.display = "none";
+                            secondVideoContainer.style.display = "block";
+                            scrollVideo2.play();
+                            manageSecondVideoWithPauses();
+                        }
+                    }
+                    ticking = false;
+                });
+                ticking = true;
             }
-
-            ticking = false;
         });
     }
-
-    window.addEventListener("scroll", updateVideoPlayback);
-}
     function manageSecondVideoWithPauses() {
         scrollVideo2.addEventListener("timeupdate", () => {
             if (
@@ -136,11 +130,9 @@ document.addEventListener("DOMContentLoaded", () => {
             ) {
                 scrollVideo2.pause();
                 isPaused = true;
-
                 const { textId } = pausePoints[currentPauseIndex];
                 const textElement = document.getElementById(textId);
                 const progressBar = document.getElementById(`timeline-${textId.split("-")[1]}`);
-
                 if (textElement) {
                     textElement.style.display = "block";
                     textElement.style.opacity = 1;
@@ -152,16 +144,10 @@ document.addEventListener("DOMContentLoaded", () => {
             if (isPaused && currentPauseIndex < pausePoints.length) {
                 const { textId } = pausePoints[currentPauseIndex];
                 const textElement = document.getElementById(textId);
-
                 if (textElement) {
                     textElement.style.opacity = 0;
-                    if (progressBar) progressBar.style.width = "0%";
-
-                    setTimeout(() => {
-                        textElement.style.display = "none";
-                    }, 500);
+                    textElement.style.display = "none";
                 }
-
                 isPaused = false;
                 scrollVideo2.play();
                 currentPauseIndex++;
@@ -173,6 +159,6 @@ document.addEventListener("DOMContentLoaded", () => {
         animateBlobs();
         animateText();
     }
-    window.addEventListener("scroll", handleFirstVideoScroll);
     initializePreloader();
+    handleFirstVideoScroll();
 });
