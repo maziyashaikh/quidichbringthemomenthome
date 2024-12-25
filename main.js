@@ -99,35 +99,41 @@
     function handleFirstVideoScroll() {
     const scrollHeight = document.body.scrollHeight - window.innerHeight;
     let ticking = false;
-    const scrollSpeedFactor = 1.5; // Increase this value to make the video scroll faster
+    let targetTime = 0; 
+    let currentTime = 0; 
+    const smoothFactor = 0.1; // Adjust for smoother easing (0.1–0.3 recommended)
+
+    function updateVideoTime() {
+        currentTime += (targetTime - currentTime) * smoothFactor;
+        scrollVideo1.currentTime = currentTime;
+
+        if (Math.abs(currentTime - targetTime) > 0.01) {
+            requestAnimationFrame(updateVideoTime);
+        }
+    }
 
     window.addEventListener('scroll', () => {
-        if (!ticking) {
-            ticking = true;
-            requestAnimationFrame(() => {
-                const scrollPercentage = window.scrollY / scrollHeight;
-                if (!firstVideoEnded) {
-                    // Apply scroll speed factor to make the video progress faster
-                    const adjustedScrollPercentage = Math.min(scrollPercentage * scrollSpeedFactor, 1);
-                    scrollVideo1.currentTime = scrollVideo1.duration * adjustedScrollPercentage;
-                    
-                    // Check if video has completed
-                    if (adjustedScrollPercentage >= 1) {
-                        firstVideoEnded = true;
-                        scrollVideo1.pause();
-                        firstVideoContainer.style.display = 'none';
-                        secondVideoContainer.style.display = 'block';
-                        scrollVideo2.play();
-                        manageSecondVideoWithPauses();
-                    }
-                }
-                ticking = false;
-            });
+        const scrollPercentage = window.scrollY / scrollHeight;
+        if (!firstVideoEnded) {
+            targetTime = scrollPercentage * scrollVideo1.duration;
+            if (!ticking) {
+                ticking = true;
+                requestAnimationFrame(() => {
+                    updateVideoTime();
+                    ticking = false;
+                });
+            }
+        }
+        if (scrollPercentage >= 1) {
+            firstVideoEnded = true;
+            scrollVideo1.pause();
+            firstVideoContainer.style.display = 'none';
+            secondVideoContainer.style.display = 'block';
+            scrollVideo2.play();
+            manageSecondVideoWithPauses();
         }
     });
 }
-
-
 
     function manageSecondVideoWithPauses() {
         scrollVideo2.addEventListener("timeupdate", () => {
