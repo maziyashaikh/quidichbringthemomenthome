@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+   document.addEventListener("DOMContentLoaded", () => {
     const shimmerWave = document.getElementById("shimmerWave");
     const video = document.getElementById("preloaderVideo");
     const preloader = document.getElementById("preloader");
@@ -96,17 +96,20 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
     }
-     function handleFirstVideoScroll() {
+    function handleFirstVideoScroll() {
     const scrollHeight = document.body.scrollHeight - window.innerHeight;
     let ticking = false;
 
     window.addEventListener('scroll', () => {
         if (!ticking) {
-            window.requestAnimationFrame(() => {
+            ticking = true;
+            requestAnimationFrame(() => {
                 const scrollPercentage = window.scrollY / scrollHeight;
                 if (!firstVideoEnded) {
                     const clampedScrollPercentage = Math.min(Math.max(scrollPercentage, 0), 1);
                     scrollVideo1.currentTime = scrollVideo1.duration * clampedScrollPercentage;
+                    
+                    // End first video if scroll completes
                     if (clampedScrollPercentage >= 1) {
                         firstVideoEnded = true;
                         scrollVideo1.pause();
@@ -118,10 +121,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
                 ticking = false;
             });
-            ticking = true;
         }
     });
 }
+
+
     function manageSecondVideoWithPauses() {
         scrollVideo2.addEventListener("timeupdate", () => {
             if (
