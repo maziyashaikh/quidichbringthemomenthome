@@ -99,6 +99,7 @@
     function handleFirstVideoScroll() {
     const scrollHeight = document.body.scrollHeight - window.innerHeight;
     let ticking = false;
+    const scrollSpeedFactor = 1.5; // Increase this value to make the video scroll faster
 
     window.addEventListener('scroll', () => {
         if (!ticking) {
@@ -106,11 +107,12 @@
             requestAnimationFrame(() => {
                 const scrollPercentage = window.scrollY / scrollHeight;
                 if (!firstVideoEnded) {
-                    const clampedScrollPercentage = Math.min(Math.max(scrollPercentage, 0), 1);
-                    scrollVideo1.currentTime = scrollVideo1.duration * clampedScrollPercentage;
+                    // Apply scroll speed factor to make the video progress faster
+                    const adjustedScrollPercentage = Math.min(scrollPercentage * scrollSpeedFactor, 1);
+                    scrollVideo1.currentTime = scrollVideo1.duration * adjustedScrollPercentage;
                     
-                    // End first video if scroll completes
-                    if (clampedScrollPercentage >= 1) {
+                    // Check if video has completed
+                    if (adjustedScrollPercentage >= 1) {
                         firstVideoEnded = true;
                         scrollVideo1.pause();
                         firstVideoContainer.style.display = 'none';
@@ -124,6 +126,7 @@
         }
     });
 }
+
 
 
     function manageSecondVideoWithPauses() {
