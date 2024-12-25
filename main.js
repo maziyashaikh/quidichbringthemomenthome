@@ -97,30 +97,31 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
      function handleFirstVideoScroll() {
-        const scrollHeight = document.body.scrollHeight - window.innerHeight;
-        window.addEventListener("scroll", () => {
-            lastKnownScrollPosition = window.scrollY;
-            if (!ticking) {
-                window.requestAnimationFrame(() => {
-                    const scrollPercentage = lastKnownScrollPosition / scrollHeight;
-                    if (!firstVideoEnded) {
-                        const clampedScrollPercentage = Math.min(Math.max(scrollPercentage, 0), 1);
-                        scrollVideo1.currentTime = scrollVideo1.duration * clampedScrollPercentage;
-                        if (clampedScrollPercentage >= 1) {
-                            firstVideoEnded = true;
-                            scrollVideo1.pause();
-                            firstVideoContainer.style.display = "none";
-                            secondVideoContainer.style.display = "block";
-                            scrollVideo2.play();
-                            manageSecondVideoWithPauses();
-                        }
+    const scrollHeight = document.body.scrollHeight - window.innerHeight;
+    let ticking = false;
+
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                const scrollPercentage = window.scrollY / scrollHeight;
+                if (!firstVideoEnded) {
+                    const clampedScrollPercentage = Math.min(Math.max(scrollPercentage, 0), 1);
+                    scrollVideo1.currentTime = scrollVideo1.duration * clampedScrollPercentage;
+                    if (clampedScrollPercentage >= 1) {
+                        firstVideoEnded = true;
+                        scrollVideo1.pause();
+                        firstVideoContainer.style.display = 'none';
+                        secondVideoContainer.style.display = 'block';
+                        scrollVideo2.play();
+                        manageSecondVideoWithPauses();
                     }
-                    ticking = false;
-                });
-                ticking = true;
-            }
-        });
-    }
+                }
+                ticking = false;
+            });
+            ticking = true;
+        }
+    });
+}
     function manageSecondVideoWithPauses() {
         scrollVideo2.addEventListener("timeupdate", () => {
             if (
