@@ -96,56 +96,31 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
     }
-    function handleFirstVideoScroll() {
-    const scrollHeight = document.body.scrollHeight - window.innerHeight;
-    let rafId;
-    let lastScrollPos = window.pageYOffset;
-    let currentTime = 0;
-
-    // Lerp function for smooth interpolation
-    const lerp = (start, end, factor) => (1 - factor) * start + factor * end;
-
-    const updateVideo = () => {
-        const currentScroll = window.pageYOffset;
-        const scrollPercentage = currentScroll / scrollHeight;
-        const targetTime = scrollVideo1.duration * Math.min(Math.max(scrollPercentage, 0), 1);
-        
-        // Smooth interpolation of video time
-        currentTime = lerp(currentTime, targetTime, 0.1);
-        scrollVideo1.currentTime = currentTime;
-
-        if (Math.abs(targetTime - currentTime) > 0.001) {
-            rafId = requestAnimationFrame(updateVideo);
-        }
-
-        // Check for video end
-        if (scrollPercentage >= 0.99 && !firstVideoEnded) {
-            firstVideoEnded = true;
-            scrollVideo1.pause();
-            firstVideoContainer.style.display = "none";
-            secondVideoContainer.style.display = "block";
-            scrollVideo2.play();
-            manageSecondVideoWithPauses();
-        }
-    };
-
-    // Throttled scroll handler
-    const scrollHandler = () => {
-        if (rafId) {
-            cancelAnimationFrame(rafId);
-        }
-        rafId = requestAnimationFrame(updateVideo);
-    };
-
-    // Use passive scroll listener for better performance
-    window.addEventListener("scroll", scrollHandler, { passive: true });
-
-    // Cleanup
-    return () => {
-        window.removeEventListener("scroll", scrollHandler);
-        cancelAnimationFrame(rafId);
-    };
-}
+     function handleFirstVideoScroll() {
+        const scrollHeight = document.body.scrollHeight - window.innerHeight;
+        window.addEventListener("scroll", () => {
+            lastKnownScrollPosition = window.scrollY;
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const scrollPercentage = lastKnownScrollPosition / scrollHeight;
+                    if (!firstVideoEnded) {
+                        const clampedScrollPercentage = Math.min(Math.max(scrollPercentage, 0), 1);
+                        scrollVideo1.currentTime = scrollVideo1.duration * clampedScrollPercentage;
+                        if (clampedScrollPercentage >= 1) {
+                            firstVideoEnded = true;
+                            scrollVideo1.pause();
+                            firstVideoContainer.style.display = "none";
+                            secondVideoContainer.style.display = "block";
+                            scrollVideo2.play();
+                            manageSecondVideoWithPauses();
+                        }
+                    }
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+    }
     function manageSecondVideoWithPauses() {
         scrollVideo2.addEventListener("timeupdate", () => {
             if (
